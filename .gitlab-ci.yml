@@ -1,0 +1,4 @@
+include:
+  - project: StealLine-group/CI-cd_project
+    ref: main
+    file: .gitlab-ci.yml 

@@ -1,0 +1,6 @@
+@PROXY_TODB_HostAddress = http://localhost:5034
+
+GET {{PROXY_TODB_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

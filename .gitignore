@@ -1,0 +1,56 @@
+# Build results
+bin/
+obj/
+
+# Visual Studio  
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Test results
+TestResults/
+test-results.xml
+test-results.html
+*.trx
+*.coverage
+*.coveragexml
+
+# ASP.NET
+appsettings.Development.json
+appsettings.Local.json
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Environment
+.env
+.env.local
+
+CI_NGINX_CONF/
+
+# Temporary / backup files
+*.tmp
+*.bak
+*.Backup
+*.swp

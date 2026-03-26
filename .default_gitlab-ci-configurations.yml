@@ -1,0 +1,53 @@
+default: # default configuration for most of the jobs
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  interruptible: true
+
+variables: # global variables for all jobs, inheriting them in specific jobs if needed
+  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages" # set nuget packages path to the project directory to cache them between jobs
+  POSTGRES_HOST: postg # custom variable so code can connect to postgres service using this host
+  POSTGRES_PORT: 5432 # custom variable so code can connect to postgres service using this port
+  POSTGRES_PASSWORD: postgres # postgrersql required variable
+  POSTGRES_USER: postgres # postgrersql required variable
+  POSTGRES_DB: postgres # postgrersql required variable
+  XUNIT_REPORT_PATH: "$CI_PROJECT_DIR/test-results.xml" # custom variable for xunit test results path, can be used in the test job
+  PATH_TO_TEST_CSPROJ: TEST_PROXY/TEST_PROXY.csproj # path in gitlab repo to Xunit csproj file
+  SERVER_IP: your-server-ip-address # IP address of the server where the preview will be deployed
+  SERVER_ACCOUNT: your server account name # Account name to connect to the server via SSH
+  PREVIEW_USER: $GITLAB_USER_LOGIN
+  PREVIEW_PASS: $CI_COMMIT_SHORT_SHA 
+  DEPLOY_PATH: your deployment path on the server # Path on the server where the docker-compose file and settings.env will be copied
+
+
+.default_before_script:
+  script:
+     - apk add --no-cache openssh-client
+     - apk add --no-cache apache2-utils
+     - mkdir -p ~/.ssh
+     - chmod 700 ~/.ssh
+
+     - echo "$PRIVATE_K" | base64 -d > MyKey.pem
+     - chmod 400 MyKey.pem
+
+     - echo "$KNOWN_HOSTS" | base64 -d > ~/.ssh/known_hosts
+     - chmod 644 ~/.ssh/known_hosts
+
+     - eval $(ssh-agent)
+     - ssh-add MyKey.pem
+
+.default_after_script_filecopy_andrun:
+  script:
+
+      - echo "$SETTINGS_ENV" | base64 -d > settings.env
+
+      - ssh $SERVER_ACCOUNT@$SERVER_IP mkdir -p $DEPLOY_PATH
+
+      - scp docker-compose.yml settings.env $SERVER_ACCOUNT@$SERVER_IP:$DEPLOY_PATH
+
+
+      - |
+        ssh $SERVER_ACCOUNT@$SERVER_IP "
+          cd $DEPLOY_PATH &&
+          echo \"$CI_REGISTRY_PASSWORD\" | docker login -u \"$CI_REGISTRY_USER\" --password-stdin $CI_REGISTRY &&
+          docker compose pull &&
+          docker compose up -d
+        "
