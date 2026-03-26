@@ -1,0 +1,95 @@
+# PROXY_TODB API
+
+### ⚠️ Important Notice
+
+This program has been largely generated with the assistance of AI and is part of a broader experimental project.
+
+The primary goal of this project is to simulate a real-world DevOps workflow, including building, deploying, and maintaining applications within a controlled environment. As such, the focus is placed on infrastructure, automation, and process implementation rather than on code quality or adherence to software engineering best practices.
+
+Please note that:
+- The codebase may not follow established design patterns or coding standards
+- Certain implementations are intentionally simplified or non-optimal
+- The structure and logic are designed to support DevOps experimentation rather than production use
+
+This project should be treated as a **learning and testing environment**, not as a reference for production-grade development.
+A simple RESTful API for managing temporary databases and executing SQL scripts. Built with ASP.NET Core (.NET 8, C# 12).
+
+## Endpoints
+
+### 1. `GET /Home/CreateDB`
+
+Creates a new temporary database.
+
+- **Response:**
+{ "Message": "Database created successfully.", "Hash": "unique-database-hash" }
+
+- **Usage:**  
+  Call this endpoint to create a new database. The response includes a unique hash to reference the database in future requests.
+
+---
+
+### 2. `DELETE /Home/DeleteDB?uniquehash={hash}`
+
+Deletes a database identified by its unique hash.
+
+- **Parameters:**
+  - `uniquehash` (string): The hash of the database to delete.
+- **Response:**  
+  Returns a message indicating the result of the deletion.
+- **Usage:**  
+  Use the hash received from `CreateDB` to delete the corresponding database.
+
+---
+
+### 3. `POST /Home/ExecuteScript`
+
+Executes a SQL script against a database identified by its hash.
+
+- **Request Body:**
+  { "Hash": "unique-database-hash", "Script": "SQL script to execute" }
+  - **Response:**
+  - { "Message": "Result of script execution.", "Success": true }
+- **Usage:**  
+  Send the hash and the SQL script you want to execute. The response indicates if the execution was successful and provides any output or error message.
+
+---
+
+### 4. `GET /Home/Hello`
+
+Simple health check endpoint.
+
+- **Response:**  
+  `"I am working"`
+- **Usage:**  
+  Use this endpoint to verify that the API is running.
+
+---
+### 📄 `settings.env` structure
+
+```env
+masterconn=Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=postgres;
+host=localhost
+port=5432
+managementdb=ManagementDB
+```
+
+## 🔑 Parameters explained
+
+- **`masterconn`**  
+  Connection string for the main (head) PostgreSQL database.  
+  ⚠️ Must use **admin-level credentials**, as it is required for creating and managing databases.
+
+- **`host`**  
+  Database host.  
+  Must match the host specified in `masterconn`.
+
+- **`port`**  
+  Database port (default: `5432`).
+
+- **`managementdb`**  
+  Name of the management database where all service-related data is stored.
+
+---
+gitlab-ci and etc files for ci-cd pipeline, dont touch them
+TEST_PROXY is a integration test code 
+**Other files and structure is mostly explained in ...** 
