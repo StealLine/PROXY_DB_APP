@@ -95,33 +95,44 @@ TEST_PROXY is a integration test code
 
 ## How to run locally? (docker-compose.yaml file)
 
-1. Build code locally using **dotnet publish -c Release -o publish**
+1. Build code locally
 
-2. Build docker image using Dockerfile. Dockerfile should be placed where the publish folder is.
+```bash
+dotnet publish -c Release -o publish
+```
 
-   ```dockerfile
-   FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+2. Build docker image using Dockerfile. Dockerfile should be placed where the `publish` folder is.
 
-   WORKDIR /app
+```dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 
-   COPY publish/ ./
+WORKDIR /app
 
-   RUN apk add --no-cache curl
+COPY publish/ ./
 
-   ENV ASPNETCORE_URLS=http://+:8080
-   EXPOSE 8080
+RUN apk add --no-cache curl
 
-   ENTRYPOINT ["dotnet", "YOUR_PROJ_DLL"]
-   ```
-  Example: docker build -t proxyapp .
-3. 
-```docker-compose.yaml
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "YOUR_PROJ_DLL"]
+```
+
+Example:
+
+```bash
+docker build -t proxyapp .
+```
+
+3. Create `docker-compose.yaml`
+
+```yaml
 services:
   proxydb:
     container_name: proxy_app_deploy
-    image: # your docker image you just built with Dockerfile here
+    image: proxyapp
     env_file:
-      - settings.env # this file should be with docker-compose.yml file
+      - settings.env
     depends_on:
       pgdb:
         condition: service_healthy
@@ -154,4 +165,12 @@ networks:
   deploy_net:
 ```
 
-**Other files and structure is mostly explained in** [Main project](https://github.com/StealLine/GITLAB-CI-PROJECT)
+4. Run containers
+
+```bash
+docker compose up -d
+```
+
+⚠️ Make sure you changed the database hostname in `settings.env`.
+
+Other files and full proj structure are explained in the **[Main project](https://github.com/StealLine/GITLAB-CI-PROJECT)**.
