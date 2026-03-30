@@ -92,4 +92,66 @@ managementdb=ManagementDB
 ---
 gitlab-ci and etc files for ci-cd pipeline, dont touch them
 TEST_PROXY is a integration test code 
-**Other files and structure is mostly explained in ...** 
+
+## How to run locally? (docker-compose.yaml file)
+
+1. Build code locally using **dotnet publish -c Release -o publish**
+
+2. Build docker image using Dockerfile. Dockerfile should be placed where the publish folder is.
+
+   ```dockerfile
+   FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+
+   WORKDIR /app
+
+   COPY publish/ ./
+
+   RUN apk add --no-cache curl
+
+   ENV ASPNETCORE_URLS=http://+:8080
+   EXPOSE 8080
+
+   ENTRYPOINT ["dotnet", "YOUR_PROJ_DLL"]
+   ```
+  Example: docker build -t proxyapp .
+3. 
+```docker-compose.yaml
+services:
+  proxydb:
+    container_name: proxy_app_deploy
+    image: # your docker image you just built with Dockerfile here
+    env_file:
+      - settings.env # this file should be with docker-compose.yml file
+    depends_on:
+      pgdb:
+        condition: service_healthy
+    networks:
+      - deploy_net
+    ports:
+      - 8080:8080
+
+  pgdb:
+    container_name: db_postgres_deploy
+    image: postgres:14.22
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - deploy_net
+
+volumes:
+  db_data:
+
+networks:
+  deploy_net:
+```
+
+**Other files and structure is mostly explained in** [Main project](https://github.com/StealLine/GITLAB-CI-PROJECT)
