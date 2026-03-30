@@ -14,6 +14,8 @@ Please note that:
 This project should be treated as a **learning and testing environment**, not as a reference for production-grade development.
 A simple RESTful API for managing temporary databases and executing SQL scripts. Built with ASP.NET Core (.NET 8, C# 12).
 
+## THIS APPLICATION IS A PART OF A [Main project](https://github.com/StealLine/GITLAB-CI-PROJECT)
+
 ## Endpoints
 
 ### 1. `GET /Home/CreateDB`
